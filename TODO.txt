@@ -1,0 +1,6 @@
+TODO
+9/21/2023
+- will be reformatting the code to fit tidyverse style (spacing, variable names)
+- adding labels for the r chunks
+- adding echo=FALSE to hide blocks aren’t critical to display
+- convert tables into tibble directly

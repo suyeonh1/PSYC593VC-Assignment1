@@ -1,0 +1,6 @@
+Peer Review
+Excellent work on visualizing and summarizing the data. The bar graphs use a very clear color scheme that makes it easy to compare Sweden and Kenya across ages. Here are some minor suggestions on things that could be further improved.
+1.	Some of your r chunks are missing labels that could help make navigation easier. You could also consider adding echo=FALSE to hide blocks aren’t critical to display, such as the functions to compute ASFR.
+2.	You make a great table in question 1 and 4, but you could also try directly converting some of your data into tibbles like in question 3, and then presenting the tibble itself. This would make things more dynamic and reduce the need to manually change all the values in case your data changes later on. 
+3.	I think with your barplot() code, you have enough arguments that it would appear less cluttered if you put each argument on its own line its own line. It would make it easier to find any arguments that your might want to change when you don’t have to fully read horizontally through the code. 
+4.	The graphs look great in the markdown document but look a little small in the png output, especially with the smaller age labels. Saving it with a larger size or a higher dpi setting would make the graphs more readable.  
