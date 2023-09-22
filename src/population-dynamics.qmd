@@ -11,7 +11,9 @@ editor:
 ---
 
 <!-- These problems come from Imai, K. & Webb Williams, N. (2018). Quantitative Social Science: An introduction -->
+
 <!-- in tidyverse. Princeton University Press.-->
+
 <!-- The code giving partial solutions by Victor H Cervantes -->
 
 Understanding population dynamics is important for many areas of social
@@ -41,7 +43,7 @@ data set.
 ```
 
 | Name       | Description                                                                             |
-|:-------------------------|:---------------------------------------------|
+|:-------------|:---------------------------------------------------------|
 | `country`  | Abbreviated country name                                                                |
 | `period`   | Period during which data are collected                                                  |
 | `age`      | Age group                                                                               |
@@ -71,11 +73,14 @@ data_path <- here::here("data")
 figs_path <- here::here("results", "figures")
 ```
 
-```{r}
+```{r read-data}
 # Read data ----
-world_data  <- readr::read_csv(file = file.path(data_path, "raw_data", "World.csv"), show_col_types = FALSE)
-kenya_data  <- readr::read_csv(file = file.path(data_path, "raw_data","Kenya.csv"), show_col_types = FALSE)
-sweden_data <- readr::read_csv(file = file.path(data_path, "raw_data","Sweden.csv"), show_col_types = FALSE)
+world_data  <- readr::read_csv(file = file.path(data_path, "raw_data",  "World.csv"), 
+                               show_col_types = FALSE)
+kenya_data  <- readr::read_csv(file = file.path(data_path,  "raw_data", "Kenya.csv"), 
+                               show_col_types = FALSE)
+sweden_data <- readr::read_csv(file = file.path(data_path,  "raw_data", "Sweden.csv"), 
+                               show_col_types = FALSE)
 ```
 
 <!-- The `read_csv` function from the package `readr` -->
@@ -115,7 +120,7 @@ in the resulting CBRs.
 
 ### Answer 1
 
-```{r}
+```{r variables}
 # Create new variable py = total person years for each data set
 world_data$py <- world_data$py.men + world_data$py.women
 kenya_data$py <- kenya_data$py.men + kenya_data$py.women
@@ -128,10 +133,10 @@ sweden_data$py <- sweden_data$py.men + sweden_data$py.women
 
 <!-- instead of repeating the code for each piece of data. -->
 
-```{r}
+```{r function_cbr, echo = FALSE}
 # Function to compute the Crude Birth Rate (CBR)
 compute_cbr <- function (pop_data) {
-  pop_data%>% 
+  pop_data %>% 
     group_by(period) %>% 
       summarise(cbr = sum(births) / sum(py)) %>% 
         pull()
@@ -148,28 +153,18 @@ compute_cbr <- function (pop_data) {
 
 <!-- which has a similar behavior. -->
 
-```{r}
+```{r compute_cbr}
 # Compute the CBR for each data set
-(worldcbr  <-compute_cbr(world_data))
-(kenyacbr  <-compute_cbr(kenya_data))
-(swedencbr <-compute_cbr(sweden_data))
+(world_cbr <- compute_cbr(world_data))
+(kenya_cbr <- compute_cbr(kenya_data))
+(sweden_cbr <- compute_cbr(sweden_data))
 ```
 
-```{r}
-# Function to create a table of the data of CBR 
-compute_cbr <- function (populationData) {
-  populationData %>% 
-    group_by(period) %>% 
-      summarise(cbr = sum(births) / sum(py)) %>% 
-        pull()
-}
-```
-
-| Region | 1950-1955  | 2005-2010  |
-|:-------|:-----------|:-----------|
-| World  | 0.03732863 | 0.02021593 |
-| Kenya  | 0.05209490 | 0.03851507 |
-| Sweden | 0.01539614 | 0.01192554 |
+| Region | 1950-1955                   | 2005-2010                   |
+|:-------|:----------------------------|:----------------------------|
+| World  | `r round(world_cbr[1], 5)`  | `r round(world_cbr[2], 5)`  |
+| Kenya  | `r round(kenya_cbr[1], 5)`  | `r round(kenya_cbr[2], 5)`  |
+| Sweden | `r round(sweden_cbr[1], 5)` | `r round(sweden_cbr[2], 5)` |
 
 There seems to be a decline of CBR overall from 1950-1955 to 2005-2010.
 There seems to be a decline of CBR overall from 1950-1955 to 2005-2010.
@@ -200,7 +195,7 @@ about reproduction among women in Sweden and Kenya?
 
 ### Answer 2
 
-```{r}
+```{r function-asfr, echo = FALSE}
 # Function to compute Age specific fertility rate (ASFR)
 compute_asfr <- function (pop_data) {
   pop_data %>% 
@@ -208,37 +203,47 @@ compute_asfr <- function (pop_data) {
 }
 ```
 
-```{r}
+```{r compute-asfr}
 # Compute ASFR for each data set
 world_data  <- compute_asfr(world_data)
 kenya_data  <- compute_asfr(kenya_data)
 sweden_data <- compute_asfr(sweden_data)
 ```
 
-```{r}
+```{r compare-asfr}
 # Compare ASFRs for Kenya and Sweden
 kenya_data$asfr
 sweden_data$asfr
 ```
 
-```{r bar chart2}
+```{r bar-chart2}
 # Create Bar Chart: specify variables
 age <- c("0-4", "5-9", "10-14", "15-19", "20-24", "25-39", "40-44", "45-49",
          "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80+")
 
 asfr_total <- matrix(c(kenya_data$asfr[1:15], kenya_data$asfr[16:30], 
-                      sweden_data$asfr[1:15], sweden_data$asfr[16:30]),
-                    nrow = 4, ncol = 15, byrow = TRUE)
+                      sweden_data$asfr[1:15], sweden_data$asfr[16:30]), 
+                    nrow = 4, 
+                    ncol = 15, 
+                    byrow = TRUE)
 
-regions <- c("Kenya (1950-1955)", "Kenya (2005-2010)", 
-             "Sweden (1950-1955)", "Sweden (2005-2010)")
+regions <- c("Kenya (1950-1955)", 
+             "Kenya (2005-2010)", 
+             "Sweden (1950-1955)", 
+             "Sweden (2005-2010)")
+
 colors <- c('steelblue', 'orange', 'brown', 'purple')
 
 
 # create bar plot
-barplot(asfr_total, main = "ASFR for Kenya and Sweden", names.arg = age, 
-                          xlab = "Age", ylab = "ASFR", 
-                          col = colors, beside = TRUE, cex.names=0.5)
+barplot(asfr_total, 
+        main = "ASFR for Kenya and Sweden", 
+        names.arg = age, 
+        xlab = "Age", 
+        ylab = "ASFR", 
+        col = colors, 
+        beside = TRUE, 
+        cex.names=0.5)
 
 # Add the legend to the chart
 legend("topright", regions, cex = 1, fill = colors)
@@ -247,14 +252,22 @@ legend("topright", regions, cex = 1, fill = colors)
 
 ```{r save-barplot2, include=FALSE}
 # Save a bar plot
-png(filename = file.path(figs_path, "asfr_compared.png"))
+png(filename = file.path(figs_path, "asfr_compared.png"), 
+    width = 2000, 
+    height = 1400, 
+    res = 120)
+
 # create bar plot
-barplot(asfr_total, main = "ASFR for Kenya and Sweden", names.arg = age, 
-                          xlab = "Age", ylab = "ASFR", 
-                          col = colors, beside = TRUE, cex.names=0.5)
+barplot(asfr_total, 
+        main = "ASFR for Kenya and Sweden", 
+        names.arg = age, 
+        xlab = "Age", 
+        ylab = "ASFR", 
+        col = colors, 
+        beside = TRUE)
 
 # Add the legend to the chart
-legend("topright", regions, cex = 1, fill = colors)
+legend("topright", regions, cex = 2, fill = colors)
 dev.off()
 ```
 
@@ -285,38 +298,39 @@ world?
 
 ### Answer 3
 
-```{r}
+```{r function-tfr, echo = FALSE}
 # Function to compute the total fertility rate (TFR)
 
 compute_tfr <- function (pop_data) {
   pop_data %>% 
     group_by(period) %>% 
-      summarise(tfr = 5 *sum(asfr)) %>% 
+      summarise(tfr = 5 * sum(asfr)) %>% 
         pull()
 }
 ```
 
-```{r}
+```{r compute-tfr}
 # Compute the TFR for each data set
 (world_tfr  <- compute_tfr(world_data))
 (kenya_tfr  <- compute_tfr(kenya_data))
 (sweden_tfr <- compute_tfr(sweden_data))
 ```
 
-```{r}
+```{r tibble-total-table}
 # Compute totals of women and births in the world by period
 (
-world_data %>% 
+totals_world <- 
+  world_data %>% 
   group_by(period) %>% 
   summarise(total_women = sum(py.women), 
             total_births = sum(births)) 
--> totals_world
+
 )
 ```
 
-```{r}
+```{r compare-tfr}
 # Compare how much these totals have changed
-(changes_totals <- totals_world[2,-1] / totals_world[1,-1])
+(changes_totals <- totals_world[2, -1] / totals_world[1, -1])
 ```
 
 While the total fertility rate has dropped almost half from 1950-1955 to
@@ -341,7 +355,7 @@ The CDR is defined as: $$
      =  \frac{\text{number of deaths}}{\text{number of person-years lived}}
   $$ Briefly describe patterns you observe in the resulting CDRs.
 
-```{r}
+```{r function-cdr, echo = FALSE}
 # Function to compute the Crude death rate (CDR)
 compute_cdr <- function (pop_data) {
   pop_data %>% 
@@ -351,7 +365,7 @@ compute_cdr <- function (pop_data) {
 }
 ```
 
-```{r}
+```{r compute-cdr}
 # Compute the CDR for each data set
 (world_cdr  <- compute_cdr(world_data))
 (kenya_cdr  <- compute_cdr(kenya_data))
@@ -360,9 +374,9 @@ compute_cdr <- function (pop_data) {
 
 | Region | 1950-1955   | 2005-2010   |
 |:-------|:------------|:------------|
-| World  | 0.019318929 | 0.008166083 |
-| Kenya  | 0.02396254  | 0.01038914  |
-| Sweden | 0.009844842 | 0.009968455 |
+| World  | `r round(world_cdr[1], 5)` | `r round(world_cbr[2], 5)` |
+| Kenya  | `r round(kenya_cdr[1], 5)`  | `r round(kenya_cdr[2], 5)`  |
+| Sweden | `r round(sweden_cdr[1], 5)` | `r round(sweden_cdr[2], 5)` |
 
 From the chart we see that the there's a decrease of CDR from 1950-1955
 to 2005-2010. The world's CDR is the lowest, followed by Sweden, with
@@ -387,7 +401,7 @@ is defined as: $$
 Sweden, during the period of 2005-2010. Briefly describe the pattern you
 observe.
 
-```{r}
+```{r function-asdr, echo = FALSE}
 # Function to compute Age specific death rate (ASDR)
 compute_asdr <- function (pop_data) {
   pop_data %>% 
@@ -396,29 +410,36 @@ compute_asdr <- function (pop_data) {
 }
 ```
 
-```{r}
+```{r compute-asdr}
 # Compute ASDR for each data set
 (world_asdr  <- compute_asdr(world_data))
 (kenya_asdr  <- compute_asdr(kenya_data))
 (sweden_asdr <- compute_asdr(sweden_data))
 ```
 
-```{r bar chart}
+```{r bar-chart-asdr}
 # Create Bar Chart: specify variables
 age <- c("0-4", "5-9", "10-14", "15-19", "20-24", "25-39", "40-44", "45-49",
          "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80+")
 
 asdr_total <- matrix(c(kenya_asdr[16:30], sweden_asdr[16:30]),
-                    nrow = 2, ncol = 15, byrow = TRUE)
+                    nrow = 2, 
+                    ncol = 15, 
+                    byrow = TRUE)
 
 regions <- c("Kenya", "Sweden")
 colors <- c('steelblue', 'orange')
 
 
 # create bar plot
-barplot(asdr_total, main = "ASDR for Kenya and Sweden in 2005-2010", names.arg = age, 
-                          xlab = "Age", ylab = "ASDR", 
-                          col = colors, beside = TRUE, cex.names=0.5)
+barplot(asdr_total, 
+        main = "ASDR for Kenya and Sweden in 2005-2010", 
+        names.arg = age, 
+        xlab = "Age", 
+        ylab = "ASDR", 
+        col = colors, 
+        beside = TRUE, 
+        cex.names=0.5)
 
 # Add the legend to the chart
 legend("topleft", regions, cex = 1, fill = colors)
@@ -427,16 +448,22 @@ legend("topleft", regions, cex = 1, fill = colors)
 
 ```{r save-barplot, include=FALSE}
 # Save a bar plot
-png(filename = file.path(figs_path, "asdr_compared.png"))
+png(filename = file.path(figs_path, "asdr_compared.png"), 
+    width = 2000, 
+    height = 1400, 
+    res = 120)
 
 # create bar plot
-barplot(asdr_total, main = "ASDR for Kenya and Sweden in 2005-2010", names.arg = age, 
-                          xlab = "Age", ylab = "ASDR", 
-                          col = colors, beside = TRUE, cex.names=0.5)
+barplot(asdr_total, 
+        main = "ASDR for Kenya and Sweden in 2005-2010", 
+        names.arg = age, 
+        xlab = "Age", 
+        ylab = "ASDR", 
+        col = colors, 
+        beside = TRUE)
 
 # Add the legend to the chart
-legend("topleft", regions, cex = 1, fill = colors)
-
+legend("topleft", regions, cex = 2, fill = colors)
 dev.off()
 ```
 
@@ -465,7 +492,7 @@ compute the counterfactual CDR for Kenya. How does this counterfactual
 CDR compare with the original CDR of Kenya? Briefly interpret the
 result.
 
-```{r}
+```{r function-population-proportion, echo = FALSE}
 # Function to compute population proportion by period
 compute_pop_prop <- function (pop_data) {
   pop_data %>% 
@@ -476,14 +503,14 @@ compute_pop_prop <- function (pop_data) {
 }
 ```
 
-```{r}
+```{r compute-population-proportion}
 # Compute population proportion for each data set
 world_pop_prop <- compute_pop_prop(world_data)
 kenya_pop_prop <- compute_pop_prop(kenya_data)
 sweden_pop_prop <- compute_pop_prop(sweden_data)
 ```
 
-```{r}
+```{r compute-distribution}
 # Compute Kenyas CDR Kenya had to Sweden's population distribution
 mutate(kenya_data,
        temp_cdr = kenya_asdr * sweden_pop_prop) %>%
@@ -492,9 +519,9 @@ mutate(kenya_data,
 
 ```
 
-The CDR for Kenya was 0.01038914, whereas when we compute Kenya's CDR to 
-Sweden's population distribution, such that we have a counterfactual CDR, 
-it turns out to be 0.02321646. Thus if Kenya had the population proportion 
-similar to Sweden, then the CDR turns out to be much higher. 
-Therefore, we can infer that Sweden's popululation tends to have a higher 
-proportion of people vulnerable to death.
+The CDR for Kenya was 0.01038914, whereas when we compute Kenya's CDR to
+Sweden's population distribution, such that we have a counterfactual
+CDR, it turns out to be 0.02321646. Thus if Kenya had the population
+proportion similar to Sweden, then the CDR turns out to be much higher.
+Therefore, we can infer that Sweden's popululation tends to have a
+higher proportion of people vulnerable to death.
